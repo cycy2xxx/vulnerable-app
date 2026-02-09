@@ -1,0 +1,9 @@
+services:
+  web:
+    build: ./app
+    container_name: vulnerable-app
+    ports:
+      - "0.0.0.0:5000:5000"
+    restart: unless-stopped
+    volumes:
+      - ./app:/app
