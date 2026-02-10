@@ -1,4 +1,184 @@
 {% extends "base.html" %}
+{% block title %}Vulnerable App - ダッシュボード{% endblock %}
 {% block content %}
-<h1>Welcome, {{ name }}!</h1>
+<h2 class="mb-4">脆弱性学習ダッシュボード</h2>
+<p class="text-muted mb-4">
+    IPA「安全なウェブサイトの作り方」およびOWASP Top 10に基づく10種類の脆弱性を体験できます。<br>
+    各カードをクリックして、脆弱性のデモと解説を確認してください。
+</p>
+
+<div class="row g-3">
+    <!-- 1. XSS -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-danger h-100">
+            <div class="card-body">
+                <h5 class="card-title">1. XSS</h5>
+                <p class="card-text text-muted small">クロスサイトスクリプティング</p>
+                <p class="card-text">ユーザー入力がHTMLにそのまま出力され、スクリプトが実行される脆弱性。</p>
+                <span class="badge bg-danger">A03:Injection</span>
+                <span class="badge bg-secondary">出力の不適切な処理</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/xss" class="btn btn-outline-danger btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. SQLi -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-danger h-100">
+            <div class="card-body">
+                <h5 class="card-title">2. SQLインジェクション</h5>
+                <p class="card-text text-muted small">SQL Injection</p>
+                <p class="card-text">SQL文にユーザー入力が直接埋め込まれ、任意のクエリが実行される脆弱性。</p>
+                <span class="badge bg-danger">A03:Injection</span>
+                <span class="badge bg-secondary">入力値の検証不足</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/sqli" class="btn btn-outline-danger btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. CSRF -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-warning h-100">
+            <div class="card-body">
+                <h5 class="card-title">3. CSRF</h5>
+                <p class="card-text text-muted small">クロスサイトリクエストフォージェリ</p>
+                <p class="card-text">外部サイトからの偽造リクエストにより、ユーザーの意図しない操作が実行される脆弱性。</p>
+                <span class="badge bg-warning text-dark">A01:Access Control</span>
+                <span class="badge bg-secondary">認可・認証の不備</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/csrf" class="btn btn-outline-warning btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. 認証の不備 -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-info h-100">
+            <div class="card-body">
+                <h5 class="card-title">4. 認証の不備</h5>
+                <p class="card-text text-muted small">Identification and Authentication Failures</p>
+                <p class="card-text">パスワードの平文保存、弱いパスワード、ロック機構なしなど認証設計の問題。</p>
+                <span class="badge bg-info">A07:Auth Failures</span>
+                <span class="badge bg-secondary">認可・認証の不備</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/auth" class="btn btn-outline-info btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. 機密情報の露出 -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-info h-100">
+            <div class="card-body">
+                <h5 class="card-title">5. 機密情報の露出</h5>
+                <p class="card-text text-muted small">Sensitive Data Exposure</p>
+                <p class="card-text">APIレスポンスやHTMLに機密情報（パスワード、カード番号等）がそのまま含まれる脆弱性。</p>
+                <span class="badge bg-info">A02:Cryptographic Failures</span>
+                <span class="badge bg-secondary">出力値の扱い不備</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/exposure" class="btn btn-outline-info btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. コマンドインジェクション -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-danger h-100">
+            <div class="card-body">
+                <h5 class="card-title">6. OSコマンドインジェクション</h5>
+                <p class="card-text text-muted small">OS Command Injection</p>
+                <p class="card-text">ユーザー入力がOSコマンドに直接渡され、任意のコマンドが実行される脆弱性。</p>
+                <span class="badge bg-danger">A03:Injection</span>
+                <span class="badge bg-secondary">入力値の検証不足</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/cmdi" class="btn btn-outline-danger btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 7. セキュリティ設定ミス -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-warning h-100">
+            <div class="card-body">
+                <h5 class="card-title">7. セキュリティ設定ミス</h5>
+                <p class="card-text text-muted small">Security Misconfiguration</p>
+                <p class="card-text">デバッグモード有効、秘密鍵のハードコード、ディレクトリリスティング等の設定不備。</p>
+                <span class="badge bg-warning text-dark">A05:Misconfiguration</span>
+                <span class="badge bg-secondary">設定管理の不備</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/misconfig" class="btn btn-outline-warning btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 8. ディレクトリトラバーサル -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-warning h-100">
+            <div class="card-body">
+                <h5 class="card-title">8. ディレクトリトラバーサル</h5>
+                <p class="card-text text-muted small">Directory Traversal / Path Traversal</p>
+                <p class="card-text">ファイルパスの検証不足により、意図しないファイルが読み取られる脆弱性。</p>
+                <span class="badge bg-warning text-dark">A01:Access Control</span>
+                <span class="badge bg-secondary">入力値の検証不足</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/traversal" class="btn btn-outline-warning btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 9. アクセス制御の不備 -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-warning h-100">
+            <div class="card-body">
+                <h5 class="card-title">9. アクセス制御の不備</h5>
+                <p class="card-text text-muted small">Broken Access Control (IDOR)</p>
+                <p class="card-text">認可チェックの欠如により、他ユーザーのデータや管理機能に不正アクセスできる脆弱性。</p>
+                <span class="badge bg-warning text-dark">A01:Access Control</span>
+                <span class="badge bg-secondary">認可・認証の不備</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/access" class="btn btn-outline-warning btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 10. オープンリダイレクト -->
+    <div class="col-md-6 col-lg-4">
+        <div class="card vuln-card border-warning h-100">
+            <div class="card-body">
+                <h5 class="card-title">10. オープンリダイレクト</h5>
+                <p class="card-text text-muted small">Open Redirect</p>
+                <p class="card-text">リダイレクト先URLの検証不足により、外部の悪意あるサイトへ誘導される脆弱性。</p>
+                <span class="badge bg-warning text-dark">A01:Access Control</span>
+                <span class="badge bg-secondary">入力値の検証不足</span>
+            </div>
+            <div class="card-footer">
+                <a href="/vuln/redirect" class="btn btn-outline-warning btn-sm w-100">体験する</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4 p-3 bg-light rounded">
+    <h6>テスト用アカウント</h6>
+    <table class="table table-sm table-bordered mb-0">
+        <thead><tr><th>ユーザー名</th><th>パスワード</th><th>ロール</th></tr></thead>
+        <tbody>
+            <tr><td>admin</td><td>admin123</td><td>admin</td></tr>
+            <tr><td>user1</td><td>password</td><td>user</td></tr>
+            <tr><td>user2</td><td>letmein</td><td>user</td></tr>
+            <tr><td>tanaka</td><td>tanaka2024</td><td>user</td></tr>
+        </tbody>
+    </table>
+</div>
 {% endblock %}

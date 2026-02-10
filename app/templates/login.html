@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}ログイン - Vulnerable App{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <h3 class="mb-4">ログイン</h3>
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+        <form method="POST" action="/login{% if request.args.get('next') %}?next={{ request.args.get('next') }}{% endif %}">
+            <div class="mb-3">
+                <label class="form-label">ユーザー名</label>
+                <input type="text" name="username" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">パスワード</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">ログイン</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

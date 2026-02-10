@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}XSS - Vulnerable App{% endblock %}
+{% block content %}
+<h3 class="vuln-header">1. XSS（クロスサイトスクリプティング）</h3>
+
+<div class="row mt-3">
+    <div class="col-lg-8">
+        <!-- 概要 -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>概要</h5>
+                <p>ユーザーの入力値がHTMLページにエスケープされずに出力されると、攻撃者が任意のJavaScriptを実行できます。
+                   Cookieの窃取、セッションハイジャック、フィッシングなどに悪用されます。</p>
+                <span class="badge bg-danger">OWASP A03:Injection</span>
+                <span class="badge bg-secondary">IPA: 出力の不適切な処理</span>
+            </div>
+        </div>
+
+        <!-- 体験 -->
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>体験: 検索フォーム</h5>
+                <form method="GET" action="/vuln/xss">
+                    <div class="input-group mb-3">
+                        <input type="text" name="q" class="form-control" placeholder="検索キーワードを入力..."
+                               value="{{ query }}">
+                        <button class="btn btn-primary" type="submit">検索</button>
+                    </div>
+                </form>
+
+                {% if query %}
+                <div class="alert alert-info">
+                    「{{ query | safe }}」の検索結果: 0件
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 攻撃例 -->
+        <div class="attack-example mb-3">
+            <h6>攻撃ペイロード例</h6>
+            <ul class="mb-0 small">
+                <li><code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+                <li><code>&lt;img src=x onerror="alert(document.cookie)"&gt;</code></li>
+                <li><code>&lt;svg onload="alert('XSS')"&gt;</code></li>
+            </ul>
+        </div>
+
+        <!-- ヒント -->
+        <div class="accordion hint-section" id="hintXSS">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#hint1">
+                        ヒント1: どこに注目すべきか
+                    </button>
+                </h2>
+                <div id="hint1" class="accordion-collapse collapse" data-bs-parent="#hintXSS">
+                    <div class="accordion-body">検索結果の表示部分を見てください。入力した文字がそのままHTMLに出力されていませんか？</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#hint2">
+                        ヒント2: テンプレートの問題
+                    </button>
+                </h2>
+                <div id="hint2" class="accordion-collapse collapse" data-bs-parent="#hintXSS">
+                    <div class="accordion-body">Jinja2テンプレートで <code>{{ "{{ query | safe }}" }}</code> が使用されています。<code>| safe</code> フィルタはHTMLエスケープを無効化します。</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#hint3">
+                        ヒント3: 実行してみよう
+                    </button>
+                </h2>
+                <div id="hint3" class="accordion-collapse collapse" data-bs-parent="#hintXSS">
+                    <div class="accordion-body">
+                        検索フォームに <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code> と入力して検索ボタンを押してみてください。
+                        アラートダイアログが表示されれば、XSSが成功です。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

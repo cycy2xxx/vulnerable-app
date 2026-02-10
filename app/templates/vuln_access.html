@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}アクセス制御の不備 - Vulnerable App{% endblock %}
+{% block content %}
+<h3 class="vuln-header">9. アクセス制御の不備</h3>
+
+<div class="row mt-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>概要</h5>
+                <p>ユーザーIDをURLに含むプロファイルページに認可チェックがない場合、
+                   IDを変えるだけで他ユーザーの情報を閲覧できます（IDOR: Insecure Direct Object Reference）。
+                   また、管理パネルに認証チェックがなければ、URLを知っているだけでアクセスできます。</p>
+                <span class="badge bg-warning text-dark">OWASP A01:Access Control</span>
+                <span class="badge bg-secondary">IPA: 認可・認証の不備</span>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>体験: IDOR（安全でない直接オブジェクト参照）</h5>
+                <p>以下のリンクからユーザープロファイルにアクセスしてみてください。
+                   ログインしていなくても、IDを変えるだけで任意のユーザー情報が見られます。</p>
+                <ul>
+                    <li><a href="/vuln/access/profile/1">/vuln/access/profile/1</a> — admin</li>
+                    <li><a href="/vuln/access/profile/2">/vuln/access/profile/2</a> — user1</li>
+                    <li><a href="/vuln/access/profile/3">/vuln/access/profile/3</a> — user2</li>
+                    <li><a href="/vuln/access/profile/4">/vuln/access/profile/4</a> — tanaka</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>体験: 認証なし管理パネル</h5>
+                <p><a href="/admin" class="btn btn-outline-danger btn-sm">/admin にアクセス</a></p>
+                <p class="small text-muted">ログインしていなくても管理パネルにアクセスできます。</p>
+            </div>
+        </div>
+
+        <div class="attack-example mb-3">
+            <h6>問題点</h6>
+            <ul class="small mb-0">
+                <li>プロファイルページ: ログインユーザーと閲覧対象の一致を検証していない</li>
+                <li>管理パネル: 認証チェックがない（<code>@login_required</code> 相当の処理がない）</li>
+                <li>URLのID部分を推測・列挙するだけで他ユーザーのデータにアクセス可能</li>
+            </ul>
+        </div>
+
+        <div class="accordion hint-section" id="hintAccess">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acc1">
+                        ヒント1: IDの列挙
+                    </button>
+                </h2>
+                <div id="acc1" class="accordion-collapse collapse" data-bs-parent="#hintAccess">
+                    <div class="accordion-body">
+                        URLの <code>/profile/1</code> の数字を 2, 3, 4... と変えてみてください。
+                        それぞれ異なるユーザーの個人情報（パスワード、カード番号含む）が表示されます。
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#acc2">
+                        ヒント2: 対策
+                    </button>
+                </h2>
+                <div id="acc2" class="accordion-collapse collapse" data-bs-parent="#hintAccess">
+                    <div class="accordion-body">
+                        <ul>
+                            <li>全てのエンドポイントで認証チェックを実施する</li>
+                            <li>リソースへのアクセス時に「ログインユーザー == リソースの所有者」を検証する</li>
+                            <li>管理機能にはロールベースのアクセス制御を実装する</li>
+                            <li>連番IDの代わりにUUIDを使用する（列挙を困難にする）</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

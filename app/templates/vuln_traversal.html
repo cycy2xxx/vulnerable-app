@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}ディレクトリトラバーサル - Vulnerable App{% endblock %}
+{% block content %}
+<h3 class="vuln-header">8. ディレクトリトラバーサル</h3>
+
+<div class="row mt-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>概要</h5>
+                <p>ファイルパスにユーザー入力をそのまま使用すると、<code>../</code> を使って
+                   意図しないディレクトリのファイルを読み取られる可能性があります。</p>
+                <span class="badge bg-warning text-dark">OWASP A01:Access Control</span>
+                <span class="badge bg-secondary">IPA: 入力値の検証不足</span>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>体験: ファイル閲覧</h5>
+                <form method="GET">
+                    <div class="input-group mb-3">
+                        <input type="text" name="file" class="form-control"
+                               placeholder="ファイル名を入力（例: hello.txt）" value="{{ filename }}">
+                        <button class="btn btn-primary" type="submit">表示</button>
+                    </div>
+                </form>
+
+                <p class="small text-muted">利用可能なファイル:
+                    <a href="?file=hello.txt">hello.txt</a> |
+                    <a href="?file=readme.txt">readme.txt</a> |
+                    <a href="?file=secret_data.txt">secret_data.txt</a>
+                </p>
+
+                {% if content %}
+                <h6>ファイル内容: {{ filename }}</h6>
+                <pre class="output">{{ content }}</pre>
+                {% endif %}
+
+                {% if error %}
+                <div class="alert alert-danger">{{ error }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="attack-example mb-3">
+            <h6>攻撃ペイロード例</h6>
+            <ul class="small mb-0">
+                <li><code>?file=../app.py</code> — アプリのソースコードを表示</li>
+                <li><code>?file=../init_db.py</code> — DB初期化スクリプトを表示</li>
+                <li><code>?file=../../etc/passwd</code> — システムのパスワードファイル</li>
+                <li><code>?file=../../etc/hostname</code> — ホスト名を表示</li>
+            </ul>
+        </div>
+
+        <div class="accordion hint-section" id="hintTraversal">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trav1">
+                        ヒント1: パストラバーサル
+                    </button>
+                </h2>
+                <div id="trav1" class="accordion-collapse collapse" data-bs-parent="#hintTraversal">
+                    <div class="accordion-body">
+                        <code>../</code> は「ひとつ上のディレクトリ」を意味します。
+                        <code>data/</code> ディレクトリから <code>../</code> で上のディレクトリに移動できます。
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trav2">
+                        ヒント2: 脆弱なコード
+                    </button>
+                </h2>
+                <div id="trav2" class="accordion-collapse collapse" data-bs-parent="#hintTraversal">
+                    <div class="accordion-body">
+                        サーバー側では <code>os.path.join('data', filename)</code> でパスを組み立てていますが、
+                        <code>filename</code> に <code>../</code> が含まれていても検証していません。
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#trav3">
+                        ヒント3: 対策
+                    </button>
+                </h2>
+                <div id="trav3" class="accordion-collapse collapse" data-bs-parent="#hintTraversal">
+                    <div class="accordion-body">
+                        <code>os.path.realpath()</code> でパスを正規化し、
+                        許可されたディレクトリ内に収まっていることを検証します。
+                        Flaskの <code>send_from_directory()</code> は内部でこの検証を行います。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

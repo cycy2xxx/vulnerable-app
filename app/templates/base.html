@@ -3,15 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vulnerable App</title>
+    <title>{% block title %}Vulnerable App{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
 </head>
 <body>
-    <nav>
-        <a href="/">Home</a> | <a href="/login">Login</a>
+    <!-- ナビゲーションバー -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="/">Vulnerable App</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">ダッシュボード</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/admin">管理パネル</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    {% if session.get('username') %}
+                    <li class="nav-item">
+                        <span class="nav-link text-light">{{ session['username'] }} ({{ session.get('role', 'user') }})</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/logout">ログアウト</a>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">ログイン</a>
+                    </li>
+                    {% endif %}
+                    <li class="nav-item">
+                        <a class="nav-link text-warning" href="/reset-db">DB初期化</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
-    <hr>
-    
-    {% block content %}{% endblock %}
 
+    <div class="container-fluid">
+        <div class="row">
+            <!-- サイドバー -->
+            <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse py-3">
+                <h6 class="text-muted px-3 mb-2">脆弱性一覧</h6>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/xss">
+                            <span class="badge bg-danger me-1">A03</span> 1. XSS
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/sqli">
+                            <span class="badge bg-danger me-1">A03</span> 2. SQLインジェクション
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/csrf">
+                            <span class="badge bg-warning text-dark me-1">A01</span> 3. CSRF
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/auth">
+                            <span class="badge bg-info me-1">A07</span> 4. 認証の不備
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/exposure">
+                            <span class="badge bg-info me-1">A02</span> 5. 機密情報の露出
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/cmdi">
+                            <span class="badge bg-danger me-1">A03</span> 6. コマンドインジェクション
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/misconfig">
+                            <span class="badge bg-warning text-dark me-1">A05</span> 7. 設定ミス
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/traversal">
+                            <span class="badge bg-warning text-dark me-1">A01</span> 8. ディレクトリトラバーサル
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/access">
+                            <span class="badge bg-warning text-dark me-1">A01</span> 9. アクセス制御の不備
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/vuln/redirect">
+                            <span class="badge bg-warning text-dark me-1">A01</span> 10. オープンリダイレクト
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- メインコンテンツ -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+
+                {% block content %}{% endblock %}
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}管理パネル - Vulnerable App{% endblock %}
+{% block content %}
+<h3 class="vuln-header">管理パネル</h3>
+<div class="alert alert-danger">
+    このページには認証・認可チェックがありません。URLを知っていれば誰でもアクセスできます。
+</div>
+
+<h5 class="mt-4">ユーザー一覧</h5>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr><th>ID</th><th>ユーザー名</th><th>パスワード</th><th>メール</th><th>ロール</th><th>カード番号</th></tr>
+    </thead>
+    <tbody>
+        {% for u in users %}
+        <tr>
+            <td>{{ u.id }}</td>
+            <td>{{ u.username }}</td>
+            <td>{{ u.password }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.role }}</td>
+            <td>{{ u.credit_card }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h5 class="mt-4">投稿一覧</h5>
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr><th>ID</th><th>ユーザーID</th><th>タイトル</th><th>内容</th><th>作成日時</th></tr>
+    </thead>
+    <tbody>
+        {% for p in posts %}
+        <tr>
+            <td>{{ p.id }}</td>
+            <td>{{ p.user_id }}</td>
+            <td>{{ p.title }}</td>
+            <td>{{ p.content }}</td>
+            <td>{{ p.created_at }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

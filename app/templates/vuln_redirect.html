@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}オープンリダイレクト - Vulnerable App{% endblock %}
+{% block content %}
+<h3 class="vuln-header">10. オープンリダイレクト</h3>
+
+<div class="row mt-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>概要</h5>
+                <p>リダイレクト先のURLを検証せずにそのまま使用すると、攻撃者が用意した
+                   外部の悪意あるサイトへユーザーを誘導できます。
+                   フィッシング攻撃や認証情報の窃取に悪用されます。</p>
+                <span class="badge bg-warning text-dark">OWASP A01:Access Control</span>
+                <span class="badge bg-secondary">IPA: 入力値の検証不足</span>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>体験: リダイレクト機能</h5>
+                <form method="GET" action="/vuln/redirect">
+                    <div class="input-group mb-3">
+                        <input type="text" name="url" class="form-control"
+                               placeholder="リダイレクト先URLを入力">
+                        <button class="btn btn-primary" type="submit">リダイレクト</button>
+                    </div>
+                </form>
+
+                <h6>テスト用リンク</h6>
+                <ul>
+                    <li><a href="/vuln/redirect?url=/">/vuln/redirect?url=/</a> — トップページへ（正常）</li>
+                    <li><a href="/vuln/redirect?url=https://example.com">/vuln/redirect?url=https://example.com</a> — 外部サイトへ（脆弱）</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>体験: ログイン後のリダイレクト</h5>
+                <p>ログインページの <code>next</code> パラメータも未検証です:</p>
+                <ul>
+                    <li><a href="/login?next=https://evil.example.com">/login?next=https://evil.example.com</a></li>
+                </ul>
+                <p class="small text-muted">ログイン後に外部サイトへリダイレクトされます。</p>
+            </div>
+        </div>
+
+        <div class="attack-example mb-3">
+            <h6>攻撃シナリオ</h6>
+            <p class="small">攻撃者は以下のようなURLをメール等で送信します:</p>
+            <pre class="output">http://trusted-site.com/vuln/redirect?url=https://evil.example.com/phishing</pre>
+            <p class="small">被害者はURLのドメインが信頼できるサイトであることを確認してクリックしますが、
+               実際には悪意あるサイトにリダイレクトされます。</p>
+        </div>
+
+        <div class="accordion hint-section" id="hintRedirect">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#red1">
+                        ヒント1: なぜ危険か
+                    </button>
+                </h2>
+                <div id="red1" class="accordion-collapse collapse" data-bs-parent="#hintRedirect">
+                    <div class="accordion-body">
+                        URLのドメイン部分は信頼できるサイト（あなたのサイト）です。
+                        ユーザーはURLを確認して安全だと思ってクリックしますが、
+                        実際にはリダイレクトで別のサイトに飛ばされます。
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#red2">
+                        ヒント2: 対策
+                    </button>
+                </h2>
+                <div id="red2" class="accordion-collapse collapse" data-bs-parent="#hintRedirect">
+                    <div class="accordion-body">
+                        <ul>
+                            <li>リダイレクト先をホワイトリストで制限する</li>
+                            <li>相対パスのみ許可する（<code>/</code> で始まるURLのみ）</li>
+                            <li><code>urllib.parse.urlparse()</code> でURLを解析し、ホスト部分を検証する</li>
+                            <li>外部URLの場合は警告ページを表示する</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

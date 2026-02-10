@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}OSコマンドインジェクション - Vulnerable App{% endblock %}
+{% block content %}
+<h3 class="vuln-header">6. OSコマンドインジェクション</h3>
+
+<div class="row mt-3">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>概要</h5>
+                <p>ユーザーの入力値がOSコマンドの引数として直接渡されると、
+                   セミコロンやパイプなどのシェルメタ文字を使って任意のコマンドが実行できます。</p>
+                <span class="badge bg-danger">OWASP A03:Injection</span>
+                <span class="badge bg-secondary">IPA: 入力値の検証不足</span>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5>体験: Ping診断ツール</h5>
+                <form method="POST">
+                    <div class="input-group mb-3">
+                        <input type="text" name="host" class="form-control"
+                               placeholder="ホスト名またはIPアドレス" value="{{ host }}">
+                        <button class="btn btn-primary" type="submit">Ping実行</button>
+                    </div>
+                </form>
+
+                {% if output %}
+                <h6>実行結果:</h6>
+                <pre class="output">{{ output }}</pre>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="attack-example mb-3">
+            <h6>攻撃ペイロード例</h6>
+            <ul class="small mb-0">
+                <li><code>127.0.0.1; whoami</code> — 現在のユーザーを表示</li>
+                <li><code>127.0.0.1; cat /etc/passwd</code> — パスワードファイルを表示</li>
+                <li><code>127.0.0.1; ls -la /app</code> — アプリディレクトリを一覧</li>
+                <li><code>127.0.0.1 | id</code> — パイプでコマンド実行</li>
+                <li><code>127.0.0.1 && env</code> — 環境変数を表示</li>
+            </ul>
+        </div>
+
+        <div class="accordion hint-section" id="hintCmdi">
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cmdi1">
+                        ヒント1: シェルメタ文字
+                    </button>
+                </h2>
+                <div id="cmdi1" class="accordion-collapse collapse" data-bs-parent="#hintCmdi">
+                    <div class="accordion-body">
+                        シェルでは <code>;</code> <code>|</code> <code>&&</code> <code>||</code> <code>`</code>
+                        などの文字でコマンドを連結できます。入力欄にこれらを含めてみましょう。
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cmdi2">
+                        ヒント2: 脆弱なコード
+                    </button>
+                </h2>
+                <div id="cmdi2" class="accordion-collapse collapse" data-bs-parent="#hintCmdi">
+                    <div class="accordion-body">
+                        サーバー側で <code>subprocess.run(f'ping -c 3 {host}', shell=True)</code> が実行されています。
+                        <code>shell=True</code> のため、シェルのメタ文字がそのまま解釈されます。
+                    </div>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <h2 class="accordion-header">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#cmdi3">
+                        ヒント3: 対策
+                    </button>
+                </h2>
+                <div id="cmdi3" class="accordion-collapse collapse" data-bs-parent="#hintCmdi">
+                    <div class="accordion-body">
+                        <code>shell=False</code> にしてコマンドをリスト形式で渡す: <code>subprocess.run(['ping', '-c', '3', host])</code>。
+                        さらに入力値をIPアドレス形式にバリデーションすべきです。
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
